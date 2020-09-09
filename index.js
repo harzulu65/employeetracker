@@ -12,8 +12,8 @@ var key_g = 7;
 var connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
-  user: "root",
-  password: "Test123!",
+  user: "ly5xhin8f0ciew3l",
+  password: "vdbzr64kqlb4hn4x",
   database: "emp_trackerDB",
 });
 
@@ -46,10 +46,10 @@ function re_start() {
       ],
     },
   ];
-  const onCancel = prompt=> {
-    console.log('Never stop prompting!');
+  const onCancel = (prompt) => {
+    console.log("Never stop prompting!");
     return true;
-  }
+  };
   const response = await prompts(questions, { onCancel });
   key_g = response.value;
   if (key_g < 8) {
@@ -97,17 +97,17 @@ function re_start() {
       //(first_name, last_name, role_id, manager_id)
     } else if (key_g === 4) {
       //query employees
-      connection.query("SELECT first_name, employee.id  FROM employee", function (
-        err,
-        res
-      ) {
-        if (err) throw err;
-        del_emp = JSON.parse(JSON.stringify(res));
-        array = JSON.stringify(res);
-        console.log("Prompt Employee...\n");
-        console.log("Selecting one employee...\n", del_emp, res);
-        //var answer = functions.list_employee(answersr);
-      });
+      connection.query(
+        "SELECT first_name, employee.id  FROM employee",
+        function (err, res) {
+          if (err) throw err;
+          del_emp = JSON.parse(JSON.stringify(res));
+          array = JSON.stringify(res);
+          console.log("Prompt Employee...\n");
+          console.log("Selecting one employee...\n", del_emp, res);
+          //var answer = functions.list_employee(answersr);
+        }
+      );
       //remove employee
       console.log("exit 4");
       key_g = 8;
@@ -135,7 +135,7 @@ function re_start() {
           console.log(table);
         }
       );
-    } 
+    }
   }
 
   //re_start();
