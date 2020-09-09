@@ -1,10 +1,14 @@
 var inquirer = require("inquirer");
+const prompts = require("prompts");
+const cTable = require("console.table");
+var mysql = require("mysql");
+var clear = require("clear");
+var cont = true;
 var clear = require("clear");
 var menu_option = "";
 var del_emp = [];
 var array = "";
 var mysql = require("mysql");
-const cTable = require("console.table");
 
 var connection = mysql.createConnection({
   host: "localhost",
