@@ -1,19 +1,16 @@
 var inquirer = require("inquirer");
-const prompts = require("prompts");
-const cTable = require("console.table");
-var mysql = require("mysql");
 var clear = require("clear");
-const { start } = require("repl");
-var functions = require("./functions.js");
-var cont = true;
-var emp_functions = {};
-var key_g = 7;
+var menu_option = "";
+var del_emp = [];
+var array = "";
+var mysql = require("mysql");
+const cTable = require("console.table");
 
 var connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
-  user: "ly5xhin8f0ciew3l",
-  password: "vdbzr64kqlb4hn4x",
+  user: "root",
+  password: "Test123!",
   database: "emp_trackerDB",
 });
 
@@ -24,120 +21,292 @@ connection.connect(function (err) {
   );
 });
 
-function re_start() {
-  start_q();
+async function start() {
+  clear();
+  const second = await inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "name",
+        message: "What is user's name 2?",
+        choices: [
+          "View ALL employees",
+          "View ALL employees by DEPARTMENT",
+          "View ALL employees by MANAGER",
+          "ADD employee",
+          "REMOVE employee",
+          "UPDATE employee ROLE",
+          "UPDATE employee MANAGER",
+        ],
+      },
+    ])
+    .then(function (answer) {
+      //menu_option = answer.name;
+      get_menu(answer.name);
+    });
 }
 
-(async function start_q() {
-  const questions = [
-    {
-      type: "select",
-      name: "value",
-      message: "What do you want o do?",
-      choices: [
-        "View ALL employees",
-        "View ALL employees by DEPARTMENT",
-        "View ALL employees by MANAGER",
-        "ADD employee",
-        "REMOVE employee",
-        "UPDATE employee ROLE",
-        "UPDATE employee MANAGER",
-        "Exit",
-      ],
-    },
-  ];
-  const onCancel = (prompt) => {
-    console.log("Never stop prompting!");
-    return true;
-  };
-  const response = await prompts(questions, { onCancel });
-  key_g = response.value;
-  if (key_g < 8) {
-    console.log("aqui: ", response.value);
-    if (key_g === 0) {
-      connection.query(
-        "SELECT * FROM employee as e JOIN emp_role as r ON e.role_id = r.id JOIN department as d on d.id = r.id",
-        function (err, res) {
-          if (err) throw err;
-          // Log all results of the SELECT statement
-          //console.log(res);
-          const table = cTable.getTable(res);
-          console.log(table);
-        }
-      );
-    } else if (key_g === 1) {
-      if (menu_option === "View ALL employees") {
-        //console.log("this : ", menu_option, opt);
-        connection.query(
-          "SELECT * FROM employee as e JOIN emp_role as r ON e.role_id = r.id JOIN department as d on d.id = r.id",
-          function (err, res) {
-            if (err) throw err;
-            // Log all results of the SELECT statement
-            //console.log(res);
-            const table = cTable.getTable(res);
-            console.log(table);
-          }
-        );
+async function get_menu(menu) {
+  //await start();
+  if (menu === "View ALL employees") {
+    clear();
+    //console.log("this : ", menu_option, opt);
+    connection.query(
+      "SELECT * FROM employee as e JOIN emp_role as r ON e.role_id = r.id JOIN department as d on d.id = r.id",
+      function (err, res) {
+        if (err) throw err;
+        // Log all results of the SELECT statement
+        //console.log(res);
+        const table = cTable.getTable(res);
+        console.log(table);
       }
-    } else if (key_g === 2) {
-      console.log("Selecting all employees by Manager...\n");
-      connection.query(
-        "SELECT * FROM employee as e WHERE e.manager_id IS NOT NULL ORDER BY e.manager_id",
-        function (err, res) {
-          if (err) throw err;
-          // Log all results of the SELECT statement
-          //console.log(res);
-          const table = cTable.getTable(res);
-          console.log(table);
-        }
-      );
-    } else if (key_g === 3) {
-      //clear();
-      var answers = functions.add_employee();
-      //(first_name, last_name, role_id, manager_id)
-    } else if (key_g === 4) {
-      //query employees
-      connection.query(
-        "SELECT first_name, employee.id  FROM employee",
-        function (err, res) {
-          if (err) throw err;
-          del_emp = JSON.parse(JSON.stringify(res));
-          array = JSON.stringify(res);
-          console.log("Prompt Employee...\n");
-          console.log("Selecting one employee...\n", del_emp, res);
-          //var answer = functions.list_employee(answersr);
-        }
-      );
-      //remove employee
-      console.log("exit 4");
-      key_g = 8;
-    } else if (key_g === 5) {
-      console.log("Update Employee Role...\n");
-      connection.query(
-        "SELECT * FROM employee as e WHERE e.manager_id IS NOT NULL ORDER BY e.manager_id",
-        function (err, res) {
-          if (err) throw err;
-          // Log all results of the SELECT statement
-          //console.log(res);
-          const table = cTable.getTable(res);
-          console.log(table);
-        }
-      );
-    } else if (key_g === 6) {
-      console.log("Update Employee Manager...\n");
-      connection.query(
-        "SELECT * FROM employee as e WHERE e.manager_id IS NOT NULL ORDER BY e.manager_id",
-        function (err, res) {
-          if (err) throw err;
-          // Log all results of the SELECT statement
-          //console.log(res);
-          const table = cTable.getTable(res);
-          console.log(table);
-        }
-      );
-    }
+    );
   }
+  if (menu === "View ALL employees by DEPARTMENT") {
+    clear();
+    //console.log("this : ", menu_option);
+    connection.query(
+      "SELECT * FROM employee as e JOIN emp_role as r ON e.role_id = r.id JOIN department as d on d.id = r.id ORDER by d.dept_name",
+      function (err, res) {
+        if (err) throw err;
+        // Log all results of the SELECT statement
+        //console.log(res);
+        const table = cTable.getTable(res);
+        console.log(table);
+      }
+    );
+  }
+  if (menu === "View ALL employees by MANAGER") {
+    clear();
+    //console.log("this : ", menu_option);
+    connection.query(
+      "SELECT * FROM employee as e WHERE e.manager_id IS NOT NULL ORDER BY e.manager_id",
+      function (err, res) {
+        if (err) throw err;
+        // Log all results of the SELECT statement
+        //console.log(res);
+        const table = cTable.getTable(res);
+        console.log(table);
+      }
+    );
+  }
+  if (menu === "ADD employee") {
+    const add_empl = await add_employee();
+  }
+  if (menu === "REMOVE employee") {
+    clear();
+    connection.query("SELECT * FROM employee", function (err, res) {
+      if (err) throw err;
+      //const table = cTable.getTable(res);
+      //console.log(table);
+      listToDelete(res);
+    });
+  }
+  if (menu === "UPDATE employee ROLE") {
+    clear();
+    connection.query("SELECT * FROM employee", function (err, res) {
+      if (err) throw err;
+      //const table = cTable.getTable(res);
+      //console.log(table);
+      listToUpdate(res);
+    });
+  }
+  if (menu === "UPDATE employee MANAGER") {
+    clear();
+    connection.query("SELECT * FROM employee", function (err, res) {
+      if (err) throw err;
+      //const table = cTable.getTable(res);
+      //console.log(table);
+      listToUpdateManager(res);
+    });
+  }
+  start();
+}
 
-  //re_start();
-  // => response => { username, age, about }
-})();
+//===============================================================================
+
+async function listToDelete(allEmployees) {
+  //console.log("here : ", allEmployees);
+  let allEmployeesChoiceArray = allEmployees.map(
+    (each) => `id: ${each.id} name: ${each.first_name} `
+  );
+  //console.log(allEmployeesChoiceArray);
+  const second = await inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "employee",
+        message: "What is the record to delete ?",
+        choices: allEmployeesChoiceArray,
+      },
+    ])
+    .then(function (answer) {
+      //console.log(answer.employee);
+      var employeeSplit = answer.employee.split(" ");
+      //console.log(employeeSplit);
+      var id = employeeSplit[1];
+      //console.log(id);
+      connection.query(
+        `DELETE FROM employee as e WHERE e.id = ${id}`,
+        menu_option,
+        function (err, res) {
+          if (err) throw err;
+          console.log(" employee deleted!\n");
+        }
+      );
+    });
+  start();
+}
+
+//List to Update employee======================================================
+
+async function listToUpdate(allEmployees) {
+  //console.log("here : ", allEmployees);
+  let allEmployeesChoiceArray = allEmployees.map(
+    (each) =>
+      `id: ${each.id} name: ${each.first_name} role_id: ${each.role_id} `
+  );
+  console.log(allEmployeesChoiceArray);
+  const second = await inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "employee",
+        message: "Select the record to update?",
+        choices: allEmployeesChoiceArray,
+      },
+    ])
+    .then(function (answers) {
+      //console.log(answer.employee);
+      var employeeSplit = answers.employee.split(" ");
+      //console.log(employeeSplit);
+      var id = employeeSplit[5];
+      //console.log(id);
+      update_employee_role(id);
+      //console.log(id);
+    });
+}
+
+// UPDATE employee Manager==========================================================
+
+async function listToUpdateManager(allEmployees) {
+  //console.log("here : ", allEmployees);
+  clear();
+  let allEmployeesChoicesArray = allEmployees.map(
+    (each) =>
+      `id: ${each.id} name: ${each.first_name} manager_id: ${each.manager_id} `
+  );
+  //console.log(allEmployeesChoiceArray);
+  const second = await inquirer
+    .prompt([
+      {
+        type: "list",
+        name: "employee",
+        message: "Select the record to update?",
+        choices: allEmployeesChoicesArray,
+      },
+    ])
+    .then(function (answers) {
+      //console.log(answer.employee);
+      var employeeSplit = answers.employee.split(" ");
+      console.log(employeeSplit);
+      var id = employeeSplit[1];
+      //console.log(id);
+      update_employee_manager(id);
+      //console.log(id);
+    });
+}
+
+// UDPDATE employee Manager ========================================================
+
+async function update_employee_manager(emp_id) {
+  //console.log(emp_id);
+  clear();
+  const third = await inquirer
+    .prompt([
+      {
+        type: "number",
+        name: "manager",
+        message: "What is the NEW MANAGER of the employee?",
+      },
+    ])
+    .then(function (answer) {
+      menu_option = answer;
+      //console.log(menu_option);
+      connection.query(
+        `UPDATE employee SET manager_id = ${answer.manager} WHERE id = ${emp_id}`,
+        function (err, res) {
+          if (err) throw err;
+          console.log(" employee manager updated!\n");
+          menu_option = "";
+        }
+      );
+    });
+  start();
+}
+
+// UPDATE employee ROLE ============================================================
+
+async function update_employee_role(emp_id) {
+  console.log(emp_id);
+  const third = await inquirer
+    .prompt([
+      {
+        type: "number",
+        name: "role",
+        message: "What is the NEW role of the employee?",
+      },
+    ])
+    .then(function (answer) {
+      menu_option = answer;
+      console.log(menu_option);
+      connection.query(
+        `UPDATE employee SET role_id = ${answer.role} WHERE role_id = ${emp_id}`,
+        function (err, res) {
+          if (err) throw err;
+          console.log(" employee role updated!\n");
+          menu_option = "";
+        }
+      );
+    });
+  start();
+}
+
+//ADD employee ================================================================
+
+async function add_employee() {
+  const third = await inquirer
+    .prompt([
+      {
+        type: "text",
+        name: "first_name",
+        message: "What is the first name of the employee?",
+      },
+      {
+        type: "text",
+        name: "last_name",
+        message: "What is the last name of the employee?",
+      },
+      {
+        type: "number",
+        name: "role_id",
+        message: "What is the role of the employee?",
+      },
+    ])
+    .then(function (answer) {
+      menu_option = answer;
+      //console.log(menu_option);
+      connection.query("INSERT INTO employee SET ?", [menu_option], function (
+        err,
+        res
+      ) {
+        if (err) throw err;
+        console.log(res.affectedRows + " employee added!\n");
+        menu_option = "";
+      });
+    });
+}
+
+// ============================================================================
+
+start();
