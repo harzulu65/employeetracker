@@ -55,18 +55,15 @@ async function get_menu(menu) {
   if (menu === "View ALL employees") {
     clear();
     //console.log("this : ", menu_option, opt);
-    connection.query(
-      "SELECT * FROM employee as e JOIN emp_role as r ON e.role_id = r.id JOIN department as d on d.id = r.id",
-      function (err, res) {
-        if (err) throw err;
-        // Log all results of the SELECT statement
-        //console.log(res);
-        const table = cTable.getTable(res);
-        console.log(table);
-      }
-    );
-  }
-  if (menu === "View ALL employees by DEPARTMENT") {
+    connection.query("SELECT * FROM employee", function (err, res) {
+      if (err) throw err;
+      // Log all results of the SELECT statement
+      //console.log(res);
+      const table = cTable.getTable(res);
+      console.log(table);
+      menu = "";
+    });
+  } else if (menu === "View ALL employees by DEPARTMENT") {
     clear();
     //console.log("this : ", menu_option);
     connection.query(
@@ -77,10 +74,10 @@ async function get_menu(menu) {
         //console.log(res);
         const table = cTable.getTable(res);
         console.log(table);
+        menu = "";
       }
     );
-  }
-  if (menu === "View ALL employees by MANAGER") {
+  } else if (menu === "View ALL employees by MANAGER") {
     clear();
     //console.log("this : ", menu_option);
     connection.query(
@@ -91,37 +88,38 @@ async function get_menu(menu) {
         //console.log(res);
         const table = cTable.getTable(res);
         console.log(table);
+        menu = "";
       }
     );
-  }
-  if (menu === "ADD employee") {
+  } else if (menu === "ADD employee") {
     const add_empl = await add_employee();
-  }
-  if (menu === "REMOVE employee") {
+    menu = "";
+  } else if (menu === "REMOVE employee") {
     clear();
     connection.query("SELECT * FROM employee", function (err, res) {
       if (err) throw err;
       //const table = cTable.getTable(res);
       //console.log(table);
       listToDelete(res);
+      menu = "";
     });
-  }
-  if (menu === "UPDATE employee ROLE") {
+  } else if (menu === "UPDATE employee ROLE") {
     clear();
     connection.query("SELECT * FROM employee", function (err, res) {
       if (err) throw err;
       //const table = cTable.getTable(res);
       //console.log(table);
       listToUpdate(res);
+      menu = "";
     });
-  }
-  if (menu === "UPDATE employee MANAGER") {
+  } else if (menu === "UPDATE employee MANAGER") {
     clear();
     connection.query("SELECT * FROM employee", function (err, res) {
       if (err) throw err;
       //const table = cTable.getTable(res);
       //console.log(table);
       listToUpdateManager(res);
+      menu = "";
     });
   }
   start();
@@ -170,7 +168,7 @@ async function listToUpdate(allEmployees) {
     (each) =>
       `id: ${each.id} name: ${each.first_name} role_id: ${each.role_id} `
   );
-  console.log(allEmployeesChoiceArray);
+  //console.log(allEmployeesChoiceArray);
   const second = await inquirer
     .prompt([
       {
@@ -196,28 +194,31 @@ async function listToUpdate(allEmployees) {
 async function listToUpdateManager(allEmployees) {
   //console.log("here : ", allEmployees);
   clear();
-  let allEmployeesChoicesArray = allEmployees.map(
+  let allEmployeesChoicesArry = allEmployees.map(
     (each) =>
       `id: ${each.id} name: ${each.first_name} manager_id: ${each.manager_id} `
   );
-  //console.log(allEmployeesChoiceArray);
+  //console.log(allEmployeesChoiceArry);
   const second = await inquirer
     .prompt([
       {
         type: "list",
         name: "employee",
         message: "Select the record to update?",
-        choices: allEmployeesChoicesArray,
+        choices: allEmployeesChoicesArry,
       },
     ])
     .then(function (answers) {
       //console.log(answer.employee);
       var employeeSplit = answers.employee.split(" ");
-      console.log(employeeSplit);
+      //console.log(employeeSplit);
       var id = employeeSplit[1];
       //console.log(id);
       update_employee_manager(id);
       //console.log(id);
+    })
+    .catch((error) => {
+      throw error;
     });
 }
 
@@ -246,13 +247,14 @@ async function update_employee_manager(emp_id) {
         }
       );
     });
-  start();
+  //start();
+  get_menu("View ALL employees");
 }
 
 // UPDATE employee ROLE ============================================================
 
 async function update_employee_role(emp_id) {
-  console.log(emp_id);
+  //console.log(emp_id);
   const third = await inquirer
     .prompt([
       {
@@ -262,10 +264,9 @@ async function update_employee_role(emp_id) {
       },
     ])
     .then(function (answer) {
-      menu_option = answer;
-      console.log(menu_option);
+      clear();
       connection.query(
-        `UPDATE employee SET role_id = ${answer.role} WHERE role_id = ${emp_id}`,
+        `UPDATE employee as e SET e.role_id = ${answer.role} WHERE e.id = ${emp_id}`,
         function (err, res) {
           if (err) throw err;
           console.log(" employee role updated!\n");
